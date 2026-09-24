@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Eventide — Pokémon GO Tracker</title>
+<meta name="description" content="Personal tracker for Pokémon GO events, raids, field research, eggs and Team GO Rocket lineups.">
+<meta name="theme-color" content="#151821" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#F5F1E8" media="(prefers-color-scheme: light)">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icons/favicon-32.png" sizes="32x32">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+
+<header class="app-header">
+  <div class="app-header__row">
+    <h1 class="app-title">
+      <img src="icons/icon-192.png" alt="" width="28" height="28">
+      Eventide
+    </h1>
+    <button id="refresh-btn" class="icon-btn" type="button" aria-label="Refresh data">
+      <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path fill="currentColor" d="M17.65 6.35A7.95 7.95 0 0 0 12 4a8 8 0 1 0 7.75 10h-2.08A6 6 0 1 1 12 6c1.66 0 3.14.69 4.22 1.78L13 11h7V4z"/></svg>
+    </button>
+  </div>
+  <p id="status-line" class="status-line" role="status" aria-live="polite">Loading data…</p>
+</header>
+
+<main id="main">
+  <section id="tab-events" class="tab-panel" data-tab="events">
+    <div class="toolbar">
+      <div class="search-row">
+        <input id="events-search" type="search" placeholder="Search events…" aria-label="Search events" autocomplete="off">
+        <label class="star-toggle">
+          <input id="star-only" type="checkbox">
+          <span>★ Starred only</span>
+        </label>
+      </div>
+      <div id="category-chips" class="chip-row" role="group" aria-label="Filter by category"></div>
+    </div>
+    <div id="events-content"></div>
+  </section>
+
+  <section id="tab-raids" class="tab-panel" data-tab="raids" hidden>
+    <div id="raids-content"></div>
+  </section>
+
+  <section id="tab-research" class="tab-panel" data-tab="research" hidden>
+    <div class="toolbar">
+      <div class="search-row">
+        <input id="research-search" type="search" placeholder="Search tasks or rewards…" aria-label="Search research" autocomplete="off">
+      </div>
+    </div>
+    <div id="research-content"></div>
+  </section>
+
+  <section id="tab-eggs" class="tab-panel" data-tab="eggs" hidden>
+    <div id="eggs-content"></div>
+  </section>
+
+  <section id="tab-rocket" class="tab-panel" data-tab="rocket" hidden>
+    <div id="rocket-content"></div>
+  </section>
+</main>
+
+<nav class="tab-bar" aria-label="Main sections">
+  <button class="tab-bar__btn is-active" data-tab-target="events" type="button">
+    <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path fill="currentColor" d="M17 12h-5v5h5v-5M7 11h5V6H7v5m10-9v2h3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h3V2h2v2h6V2h2M20 8H4v12h16V8Z"/></svg>
+    <span>Events</span>
+  </button>
+  <button class="tab-bar__btn" data-tab-target="raids" type="button">
+    <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path fill="currentColor" d="M12 2 2 8.5 12 15l10-6.5L12 2m0 11.5L2 7v9l10 6.5L22 16V7l-10 6.5Z"/></svg>
+    <span>Raids</span>
+  </button>
+  <button class="tab-bar__btn" data-tab-target="research" type="button">
+    <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path fill="currentColor" d="M9 2v6.5L4.2 18a2 2 0 0 0 1.8 3h12a2 2 0 0 0 1.8-3L15 8.5V2M9 2h6M8.5 15h7"/></svg>
+    <span>Research</span>
+  </button>
+  <button class="tab-bar__btn" data-tab-target="eggs" type="button">
+    <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path fill="currentColor" d="M12 2C8 2 4.5 9 4.5 15a7.5 7.5 0 0 0 15 0C19.5 9 16 2 12 2Z"/></svg>
+    <span>Eggs</span>
+  </button>
+  <button class="tab-bar__btn" data-tab-target="rocket" type="button">
+    <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path fill="currentColor" d="M12 2c3 2 5 6 5 10.5 0 2-.5 3.7-1.2 5L14 15h-4l-1.8 2.5C7.5 16.2 7 14.5 7 12.5 7 8 9 4 12 2M9.5 19l1-2h3l1 2-2.5 3-2.5-3Z"/></svg>
+    <span>Rocket</span>
+  </button>
+</nav>
+
+<div id="sheet-backdrop" class="sheet-backdrop" hidden></div>
+<div id="event-sheet" class="event-sheet" role="dialog" aria-modal="true" aria-labelledby="sheet-title" hidden>
+  <div class="event-sheet__grabber" id="sheet-grabber" aria-hidden="true"></div>
+  <button id="sheet-close" class="icon-btn event-sheet__close" type="button" aria-label="Close">
+    <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path fill="currentColor" d="M18.3 5.71 12 12l6.3 6.29-1.41 1.42L10.59 13.4 4.3 19.7l-1.41-1.42L8.59 12 2.3 5.71 3.71 4.29l6.29 6.3 6.29-6.3z"/></svg>
+  </button>
+  <div id="sheet-content" class="event-sheet__content"></div>
+</div>
+
+<footer class="app-footer">
+  <p>Data from <a href="https://leekduck.com" target="_blank" rel="noopener">LeekDuck.com</a> via the <a href="https://github.com/zhenga8533/leak-duck" target="_blank" rel="noopener">leak-duck</a> scraper. Not affiliated with Niantic, Scopely or The Pokémon Company.</p>
+</footer>
+
+<script type="module" src="js/main.js"></script>
+</body>
+</html>
